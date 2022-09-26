@@ -46,6 +46,7 @@ sales-restart:
 
 sales-apply:
 	cat zarf/k8s/base/sales-pod.yaml | kubectl apply -f -
+	kustomize build zarf/k8s/kind/kustomization.yaml | kubectl apply -f -
 
 sales-status:
 	kubectl get pods -o wide --watch
