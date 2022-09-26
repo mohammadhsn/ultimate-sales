@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sales-pod
+  namespace: sales-system
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: sales
+  template:
+    metadata:
+      labels:
+        app: sales
+    spec:
+      containers:
+        - name: sales-api
+          resources:
+            limits:
+              cpu: "2000m"
+            requests:
+              cpu: "1000m"

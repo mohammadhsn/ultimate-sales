@@ -1,10 +1,10 @@
 SHELL := /bin/bash
 
-VERSION := $(git rev-parse --short HEAD)
+VERSION := $(sh git rev-parse --short HEAD)
 
 # Go
 go-run:
-	go run -ldflags "-X main.build=failed" main.go
+	go run -ldflags "-X main.build=local" main.go
 
 
 # Docker
@@ -23,7 +23,10 @@ docker-build:
 CLUSTER := ultimate-cluster
 
 kind-up:
-	kind create cluster --name $(CLUSTER) --config zarf/k8s/kind/kind-config.yaml
+	kind create cluster \
+		--name $(CLUSTER) \
+		--image kindest/node:v1.17.0@sha256:9512edae126da271b66b990b6fff768fbb7cd786c7d39e86bdf55906352fdf62 \
+		--config zarf/k8s/kind/kind-config.yaml
 	kubectl config set-context --current --namespace=sales-system
 
 kind-down:
