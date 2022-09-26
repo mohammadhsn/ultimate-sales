@@ -1,10 +1,10 @@
 SHELL := /bin/bash
 
-VERSION := 1.0
+VERSION := $(git rev-parse --short HEAD)
 
 # Go
-run:
-	go run main.go
+go-run:
+	go run -ldflags "-X main.build=failed" main.go
 
 
 # Docker
@@ -24,6 +24,7 @@ CLUSTER := ultimate-cluster
 
 kind-up:
 	kind create cluster --name $(CLUSTER) --config zarf/k8s/kind/kind-config.yaml
+	kubectl config set-context --current --namespace=sales-system
 
 kind-down:
 	kind delete cluster --name $(CLUSTER)
@@ -38,18 +39,16 @@ k8s-status:
 	kubectl get pods -o wide --watch
 
 sales-restart:
-	kubectl rollout restart deployment sales-pod --namespace sales-system
+	kubectl rollout restart deployment sales-pod
 
 sales-apply:
 	cat zarf/k8s/base/sales-pod.yaml | kubectl apply -f -
 
-
 sales-status:
-	kubectl get pods -o wide --watch --namespace sales-system
+	kubectl get pods -o wide --watch
 
 sales-logs:
 	kubectl logs \
 		-l app=sales \
 		--all-containers=true \
-		--namespace sales-system \
 		--tail 100 -f
