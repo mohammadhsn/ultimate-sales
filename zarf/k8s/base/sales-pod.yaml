@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
         - name: sales-service
-          image: sales-service:latest
+          image: sales-service:1.0
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       terminationGracePeriodSeconds: 60

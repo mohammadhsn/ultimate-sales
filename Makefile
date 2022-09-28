@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-VERSION := $(sh git rev-parse --short HEAD)
+VERSION := 1.0
 
 # Go
 go-run:
@@ -8,7 +8,7 @@ go-run:
 
 
 # Docker
-IMAGE := sales-service:latest
+IMAGE := sales-service:$(VERSION)
 
 docker-build:
 	docker image build \
@@ -20,20 +20,15 @@ docker-build:
 
 
 # Kind
-CLUSTER := ultimate-cluster
-
 kind-up:
-	kind create cluster \
-		--name $(CLUSTER) \
-		--image kindest/node:v1.17.0@sha256:9512edae126da271b66b990b6fff768fbb7cd786c7d39e86bdf55906352fdf62 \
-		--config zarf/k8s/kind/kind-config.yaml
+	kind create cluster --config zarf/k8s/kind/kind-config.yaml
 	kubectl config set-context --current --namespace=sales-system
 
 kind-down:
-	kind delete cluster --name $(CLUSTER)
+	kind delete cluster
 
 kind-load:
-	kind load docker-image $(IMAGE) --name $(CLUSTER)
+	kind load docker-image $(IMAGE)
 
 # Kubernetes
 k8s-status:
@@ -46,7 +41,6 @@ sales-restart:
 
 sales-apply:
 	cat zarf/k8s/base/sales-pod.yaml | kubectl apply -f -
-	kustomize build zarf/k8s/kind/kustomization.yaml | kubectl apply -f -
 
 sales-status:
 	kubectl get pods -o wide --watch
