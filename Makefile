@@ -40,7 +40,10 @@ sales-restart:
 	kubectl rollout restart deployment sales-pod
 
 sales-apply:
-	cat zarf/k8s/base/sales-pod.yaml | kubectl apply -f -
+	# cat zarf/k8s/base/sales-pod.yaml | kubectl apply -f -
+	kubectl kustomize build zarf/k8s/kind/kustomization.yaml | kubectl apply -f -
+
+sales-update: docker-build kind-load sales-restart
 
 sales-status:
 	kubectl get pods -o wide --watch
@@ -50,3 +53,6 @@ sales-logs:
 		-l app=sales \
 		--all-containers=true \
 		--tail 100 -f
+
+sales-describe:
+	kubectl describe pod -l app=sales
