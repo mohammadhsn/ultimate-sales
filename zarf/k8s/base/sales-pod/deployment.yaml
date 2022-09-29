@@ -1,8 +1,3 @@
-kind: Namespace
-apiVersion: v1
-metadata:
-  name: sales-system
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -19,7 +14,7 @@ spec:
     spec:
       containers:
         - name: sales-service
-          image: sales-service:1.0
+          image: sales-service
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       terminationGracePeriodSeconds: 60

@@ -5,16 +5,16 @@ ARG BUILD_REF
 
 WORKDIR /service
 
-COPY main.go go.mod go.sum ./
+COPY . .
 
-RUN go build -ldflags "-X main.build=${BUILD_REF}" -o sales-api
+RUN go build -ldflags "-X main.build=${BUILD_REF}" -o sales
 
 FROM alpine:3.14
 
 ARG BUILD_REF
 
-COPY --from=builder /service/sales-api /service/sales-api
+COPY --from=builder /service/sales /service/sales
 
 WORKDIR /service
 
-CMD ["./sales-api"]
+CMD ["./sales"]

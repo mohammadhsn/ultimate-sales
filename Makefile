@@ -32,6 +32,7 @@ kind-down:
 	kind delete cluster
 
 kind-load:
+	cd zarf/k8s/kind; kustomize edit set image sales-service=sales-service-amd64:$(VERSION)
 	kind load docker-image $(IMAGE)
 
 # Kubernetes
