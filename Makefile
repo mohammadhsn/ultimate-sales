@@ -6,6 +6,10 @@ VERSION := 1.0
 go-run:
 	go run -ldflags "-X main.build=local" main.go
 
+go-tidy:
+	go mod tidy
+	go mod vendor
+
 
 # Docker
 IMAGE := sales-service:$(VERSION)

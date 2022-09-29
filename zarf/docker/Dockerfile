@@ -5,7 +5,7 @@ ARG BUILD_REF
 
 WORKDIR /service
 
-COPY main.go go.mod ./
+COPY main.go go.mod go.sum ./
 
 RUN go build -ldflags "-X main.build=${BUILD_REF}" -o sales-api
 
