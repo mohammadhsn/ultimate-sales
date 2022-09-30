@@ -7,7 +7,7 @@ WORKDIR /service
 
 COPY . .
 
-RUN go build -ldflags "-X main.build=${BUILD_REF}" -o sales
+RUN go build -ldflags "-X main.build=${BUILD_REF}" -o sales app/services/sales/main.go
 
 FROM alpine:3.14
 

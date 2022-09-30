@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: sales-service
-          image: sales-service
+          image: sales-service-amd64
       dnsPolicy: ClusterFirstWithHostNet
       hostNetwork: true
       terminationGracePeriodSeconds: 60
