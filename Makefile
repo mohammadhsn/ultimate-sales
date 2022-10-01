@@ -12,11 +12,10 @@ go-tidy:
 
 
 # Docker
-IMAGE := sales-service:$(VERSION)
 
 docker-build:
 	docker image build \
-		-t $(IMAGE) \
+		-t sales-image:$(VERSION) \
 		-f zarf/docker/Dockerfile \
 		--build-arg BUILD_REF=$(VERSION) \
 		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
@@ -32,8 +31,8 @@ kind-down:
 	kind delete cluster
 
 kind-load:
-	cd zarf/k8s/kind; kustomize edit set image sales-service=sales-service-amd64:$(VERSION)
-	kind load docker-image $(IMAGE)
+	#cd zarf/k8s/kind; kustomize edit set image sales-image=sales-amd64:$(VERSION)
+	kind load docker-image sales-image:$(VERSION)
 
 # Kubernetes
 k8s-status:

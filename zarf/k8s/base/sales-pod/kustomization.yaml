@@ -3,7 +3,3 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - deployment.yaml
-images:
-  - name: sales-service
-    newName: sales-service-amd64
-    newTag: "1.5"

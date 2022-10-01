@@ -4,7 +4,3 @@ resources:
 - ../base/sales-pod
 patchesStrategicMerge:
 - ./service-patch.yaml
-images:
-- name: sales-service
-  newName: sales-service-amd64
-  newTag: "1.1"
