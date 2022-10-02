@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	_ "go.uber.org/automaxprocs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
