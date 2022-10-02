@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	_ "go.uber.org/automaxprocs"
+	"github.com/ardanlabs/conf"
+	//_ "go.uber.org/automaxprocs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"os"
+	"time"
 )
 
 var build = "develop"
@@ -27,6 +30,49 @@ func main() {
 }
 
 func run(log *zap.SugaredLogger) error {
+	// Configuration
+	cfg := struct {
+		conf.Version
+		Web struct {
+			APIHost         string        `conf:"default:0.0.0.0:3000"`
+			DebugHost       string        `conf:"default:0.0.0.0:4000"`
+			ReadTimout      time.Duration `conf:"default:5s"`
+			WriteTimeout    time.Duration `conf:"default:10s"`
+			IdleTimeout     time.Duration `conf:"default:120s"`
+			ShutdownTimeout time.Duration `conf:"default:20s"`
+			AreYouOk        bool          `conf:"default:true"`
+		}
+	}{
+		Version: conf.Version{
+			SVN:  build,
+			Desc: "copyright stuff",
+		},
+	}
+
+	const prefix = "SALES"
+	help, err := conf.ParseOSArgs(prefix, &cfg)
+
+	if err != nil {
+		if errors.Is(err, conf.ErrHelpWanted) {
+			fmt.Println(help)
+			return nil
+		}
+
+		return fmt.Errorf("parsing config %w", err)
+	}
+
+	// Application starting
+	log.Infow("starting service", "version", build)
+	defer log.Infow("shutdown complete")
+
+	out, err := conf.String(&cfg)
+
+	if err != nil {
+		return fmt.Errorf("generating config for output: %w", err)
+	}
+
+	log.Infow("startup", "config", out)
+
 	return nil
 }
 

@@ -4,7 +4,7 @@ VERSION := 1.0
 
 # Go
 go-run:
-	go run -ldflags "-X main.build=local" app/services/sales/main.go
+	go run -ldflags "-X main.build=local" app/services/sales/main.go | go run app/tooling/logfmt/main.go
 
 go-tidy:
 	go mod tidy
