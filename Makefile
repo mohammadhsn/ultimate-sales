@@ -57,7 +57,7 @@ sales-logs:
 	kubectl logs \
 		-l app=sales \
 		--all-containers=true \
-		--tail 100 -f
+		--tail 100 -f | go run app/tooling/logfmt/main.go
 
 sales-describe:
 	kubectl describe pod -l app=sales

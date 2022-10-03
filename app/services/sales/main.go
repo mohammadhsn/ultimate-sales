@@ -4,6 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ardanlabs/conf"
+	"os/signal"
+	"syscall"
+
 	//_ "go.uber.org/automaxprocs"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -72,6 +75,11 @@ func run(log *zap.SugaredLogger) error {
 	}
 
 	log.Infow("startup", "config", out)
+
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGKILL)
+
+	<-shutdown
 
 	return nil
 }
