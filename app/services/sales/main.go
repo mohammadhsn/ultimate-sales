@@ -2,16 +2,19 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"fmt"
-	"github.com/ardanlabs/conf"
+	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
-	//_ "go.uber.org/automaxprocs"
+	"github.com/ardanlabs/conf"
+	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
-	"os"
-	"time"
+	//_ "go.uber.org/automaxprocs"
 )
 
 var build = "develop"
@@ -75,6 +78,17 @@ func run(log *zap.SugaredLogger) error {
 	}
 
 	log.Infow("startup", "config", out)
+
+	expvar.NewString("build").Set(build)
+
+	// Construct the mux for the debug calls.
+	debugMux := handlers.DebugStandardLibraryMux()
+
+	go func() {
+		if err := http.ListenAndServe(cfg.Web.DebugHost, debugMux); err != nil {
+			log.Errorw("shutdown", "status", "debug router closed", "host", cfg.Web.DebugHost, "ERROR", err)
+		}
+	}()
 
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGKILL)

@@ -10,6 +10,9 @@ go-tidy:
 	go mod tidy
 	go mod vendor
 
+go-expvarmon:
+	expvarmon --ports=":4000" --vars="build,requests,goroutines,errors,panics,mem:memstats,Alloc"
+
 
 # Docker
 
