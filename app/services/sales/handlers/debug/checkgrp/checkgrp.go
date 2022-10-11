@@ -19,10 +19,8 @@ type Handlers struct {
 // stack it will interpret that as a non-trusted error.
 func (h Handlers) Readiness(w http.ResponseWriter, r *http.Request) {
 	data := struct {
-		Build  string `json:"build"`
 		Status string `json:"status"`
 	}{
-		Build:  h.Build,
 		Status: "OK",
 	}
 

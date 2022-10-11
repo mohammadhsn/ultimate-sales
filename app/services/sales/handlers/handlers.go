@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"encoding/json"
 	"expvar"
 	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers/debug/checkgrp"
+	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers/v1/testgrp"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -54,19 +54,11 @@ type APIMuxConfig struct {
 func APIMux(cfg APIMuxConfig) *httptreemux.ContextMux {
 	mux := httptreemux.NewContextMux()
 
-	h := func(w http.ResponseWriter, r *http.Request) {
-		status := struct {
-			Status string
-		}{
-			Status: "OK",
-		}
-
-		json.NewEncoder(w).Encode(status)
+	tgh := testgrp.Handlers{
+		Log: cfg.Log,
 	}
 
-	mux.Handle(http.MethodGet, "/test", h)
+	mux.Handle(http.MethodGet, "/v1/test", tgh.Test)
 
 	return mux
 }
-
-// Compile time polymorphism
