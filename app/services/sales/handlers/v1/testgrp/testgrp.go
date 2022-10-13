@@ -2,7 +2,7 @@ package testgrp
 
 import (
 	"context"
-	"encoding/json"
+	"github.com/mohammadhsn/ultimate-service/foundation/web"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -18,17 +18,14 @@ func (h Handlers) Test(ctx context.Context, w http.ResponseWriter, r *http.Reque
 	}{
 		Status: "OK",
 	}
-	json.NewEncoder(w).Encode(status)
-
-	statusCode := http.StatusOK
 
 	h.Log.Infow(
 		"liveness",
-		"statusCode", statusCode,
+		"statusCode", http.StatusOK,
 		"method", r.Method,
 		"path", r.URL.Path,
 		"remoteAddr", r.RemoteAddr,
 	)
 
-	return nil
+	return web.Respond(ctx, w, status, http.StatusOK)
 }
