@@ -4,6 +4,7 @@ import (
 	"expvar"
 	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers/debug/checkgrp"
 	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers/v1/testgrp"
+	"github.com/mohammadhsn/ultimate-service/business/web/mid"
 	"github.com/mohammadhsn/ultimate-service/foundation/web"
 	"net/http"
 	"net/http/pprof"
@@ -52,13 +53,24 @@ type APIMuxConfig struct {
 }
 
 func APIMux(cfg APIMuxConfig) *web.App {
-	app := web.NewApp(cfg.Shutdown)
+	// Construct the web.App which holds all routes.
+	app := web.NewApp(
+		cfg.Shutdown,
+		mid.Logger(cfg.Log),
+	)
+
+	// Load the routes for the different versions of the API.
+	v1(app, cfg)
+
+	return app
+}
+
+func v1(app *web.App, cfg APIMuxConfig) {
+	const version = "v1"
 
 	tgh := testgrp.Handlers{
 		Log: cfg.Log,
 	}
 
-	app.Handle(http.MethodGet, "v1", "/test", tgh.Test)
-
-	return app
+	app.Handle(http.MethodGet, version, "/test", tgh.Test)
 }

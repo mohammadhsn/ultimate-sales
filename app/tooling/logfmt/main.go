@@ -40,9 +40,9 @@ func main() {
 			continue
 		}
 
-		traceID := "00000000-0000-0000-0000-0000000000000000"
+		traceID := "00000000-0000-0000-0000-000000000000"
 
-		if v, ok := m["traceid"]; ok {
+		if v, ok := m["traceID"]; ok {
 			traceID = fmt.Sprintf("%v", v)
 		}
 
