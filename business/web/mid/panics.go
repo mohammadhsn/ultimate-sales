@@ -3,6 +3,7 @@ package mid
 import (
 	"context"
 	"fmt"
+	"github.com/mohammadhsn/ultimate-service/business/sys/metrics"
 	"github.com/mohammadhsn/ultimate-service/foundation/web"
 	"net/http"
 	"runtime/debug"
@@ -19,6 +20,9 @@ func Panics() web.Middleware {
 				if rec := recover(); rec != nil {
 					// Stack trace will be provided.
 					err = fmt.Errorf("PANIC [%v] TRACE[%s]", rec, string(debug.Stack()))
+
+					// Updates the metrics stored in the context.
+					metrics.AddPanics(ctx)
 				}
 			}()
 			// Call the next handler and set its return value in the err variable.
