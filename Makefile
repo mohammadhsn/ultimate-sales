@@ -47,6 +47,8 @@ sales-restart:
 	kubectl rollout restart deployment sales-pod
 
 sales-apply:
+	kubectl kustomize zarf/k8s/kind/db-pod | kubectl apply -f -
+	kubectl wait --namespace=database-system --timeout=120s --for=condition=Available deployment/database-pod
 	kubectl kustomize zarf/k8s/kind | kubectl apply -f -
 
 sales-update: docker-build kind-load sales-restart
@@ -64,3 +66,6 @@ sales-logs:
 
 sales-describe:
 	kubectl describe pod -l app=sales
+
+db-status:
+	kubectl get pod -o wide --watch --namespace=database-system
