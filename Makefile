@@ -38,6 +38,11 @@ kind-load:
 	kind load docker-image sales-image:$(VERSION)
 
 # Kubernetes
+apply:
+	kubectl kustomize zarf/k8s/kind/db-pod | kubectl apply -f -
+	kubectl wait --namespace=database-system --timeout=120s --for=condition=Available deployment/database-pod
+	kubectl kustomize zarf/k8s/kind/sales-pod | kubectl apply -f -
+
 k8s-status:
 	kubectl get nodes -o wide
 	kubectl get svc -o wide
@@ -45,11 +50,6 @@ k8s-status:
 
 sales-restart:
 	kubectl rollout restart deployment sales-pod
-
-sales-apply:
-	kubectl kustomize zarf/k8s/kind/db-pod | kubectl apply -f -
-	kubectl wait --namespace=database-system --timeout=120s --for=condition=Available deployment/database-pod
-	kubectl kustomize zarf/k8s/kind | kubectl apply -f -
 
 sales-update: docker-build kind-load sales-restart
 
