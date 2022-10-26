@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"expvar"
+	"github.com/jmoiron/sqlx"
 	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers/debug/checkgrp"
 	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers/v1/testgrp"
 	"github.com/mohammadhsn/ultimate-service/business/web/mid"
@@ -32,12 +33,13 @@ func DebugStandardLibraryMux() *http.ServeMux {
 // debug application routes for the service. This bypassing the yse of the
 // DefaultServerMux. Using the DefaultServerMux would be a security risk since
 // a dependency could inject a handler into our service without us knowing it.
-func DebugMux(build string, log *zap.SugaredLogger) http.Handler {
+func DebugMux(build string, log *zap.SugaredLogger, db *sqlx.DB) http.Handler {
 	mux := DebugStandardLibraryMux()
 
 	cgh := checkgrp.Handlers{
 		Build: build,
 		Log:   log,
+		DB:    db,
 	}
 
 	mux.HandleFunc("/debug/readiness", cgh.Readiness)

@@ -2,29 +2,43 @@
 package checkgrp
 
 import (
+	"context"
 	"encoding/json"
+	"github.com/jmoiron/sqlx"
+	"github.com/mohammadhsn/ultimate-service/business/sys/database"
 	"go.uber.org/zap"
 	"net/http"
 	"os"
+	"strings"
+	"time"
 )
 
 // Handlers manages the set of check endpoints.
 type Handlers struct {
 	Build string
 	Log   *zap.SugaredLogger
+	DB    *sqlx.DB
 }
 
 // Readiness checks if the database is ready and if not will return a 500 status.
 // Do not respond by just returning an error because further up in the call
 // stack it will interpret that as a non-trusted error.
 func (h Handlers) Readiness(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second)
+	defer cancel()
+
+	status := "ok"
+	statusCode := http.StatusOK
+	if err := database.StatusCheck(ctx, h.DB); err != nil {
+		status = "db not ready"
+		statusCode = http.StatusInternalServerError
+	}
+
 	data := struct {
 		Status string `json:"status"`
 	}{
-		Status: "OK",
+		Status: status,
 	}
-
-	statusCode := http.StatusOK
 
 	if err := response(w, statusCode, data); err != nil {
 		h.Log.Errorw("readiness", "ERROR", err)
@@ -70,7 +84,7 @@ func (h Handlers) Liveness(w http.ResponseWriter, r *http.Request) {
 }
 
 func response(w http.ResponseWriter, statusCode int, data interface{}) error {
-	jsonData, err := json.Marshal(data)
+	jsonData, err := json.MarshalIndent(data, "", strings.Repeat(" ", 4))
 
 	if err != nil {
 		return err
