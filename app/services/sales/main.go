@@ -5,6 +5,7 @@ import (
 	"errors"
 	"expvar"
 	"fmt"
+	"github.com/mohammadhsn/ultimate-service/business/sys/database"
 	"net/http"
 	"os"
 	"os/signal"
@@ -49,6 +50,15 @@ func run(log *zap.SugaredLogger) error {
 			ShutdownTimeout time.Duration `conf:"default:20s"`
 			AreYouOk        bool          `conf:"default:true"`
 		}
+		DB struct {
+			User        string `conf:"default:postgres"`
+			Password    string `conf:"default:postgres,mask"`
+			Host        string `conf:"default:localhost"`
+			Name        string `conf:"default:postgres"`
+			MaxIdleCons int    `conf:"default:0"`
+			MaxOpenCons int    `conf:"default:0"`
+			DisableTLS  bool   `conf:"default:true"`
+		}
 	}{
 		Version: conf.Version{
 			SVN:  build,
@@ -81,6 +91,31 @@ func run(log *zap.SugaredLogger) error {
 	log.Infow("startup", "config", out)
 
 	expvar.NewString("build").Set(build)
+
+	// Database support
+
+	// Create connectivity to the database.
+	log.Infow("startup", "status", "initializing database support", "host", cfg.DB.Host)
+
+	cfgDB := database.Config{
+		User:        cfg.DB.User,
+		Password:    cfg.DB.Password,
+		Host:        cfg.DB.Host,
+		Name:        cfg.DB.Name,
+		MaxIdleCons: cfg.DB.MaxIdleCons,
+		MaxOpenCons: cfg.DB.MaxOpenCons,
+		DisableTLS:  cfg.DB.DisableTLS,
+	}
+
+	db, err := database.Open(cfgDB)
+	if err != nil {
+		return fmt.Errorf("connecting to db: %w", err)
+	}
+
+	defer func() {
+		log.Infow("shutdown", "status", "stopping database support", "host", cfg.DB.Host)
+		db.Close()
+	}()
 
 	// Construct the mux for the debug calls.
 	debugMux := handlers.DebugMux(build, log)

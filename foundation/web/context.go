@@ -37,3 +37,8 @@ func SetStatusCode(ctx context.Context, statusCode int) error {
 	v.StatusCode = statusCode
 	return nil
 }
+
+// GetTraceID finds the trace id from a context.
+func GetTraceID(ctx context.Context) string {
+	return ""
+}
