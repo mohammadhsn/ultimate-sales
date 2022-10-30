@@ -13,6 +13,9 @@ go-tidy:
 go-expvarmon:
 	expvarmon --ports=":4000" --vars="build,requests,goroutines,errors,panics,mem:memstats,Alloc"
 
+admin:
+	go run app/tooling/admin/main.go
+
 
 # Docker
 
