@@ -12,10 +12,10 @@ spec:
       labels:
         app: sales
     spec:
-#      initContainers:
-#        - name: init-migrate
-#          image: sales-image:1.0
-#          command: ['sleep', '1000000000000']
+      initContainers:
+        - name: init-migrate
+          image: sales-image:1.0
+          command: ['./admin']
       containers:
         - name: sales-service
           image: sales-image:1.0

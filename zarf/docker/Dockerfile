@@ -14,7 +14,9 @@ RUN go build -ldflags "-X main.build=${BUILD_REF}" -o sales app/services/sales/m
 
 FROM alpine:3.14
 
-COPY --from=builder /service/sales /service/sales
-COPY --from=builder /service/admin /service/admin
+WORKDIR /service
+
+COPY --from=builder /service/sales .
+COPY --from=builder /service/admin .
 
 CMD ["./sales"]
