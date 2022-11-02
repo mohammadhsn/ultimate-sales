@@ -31,7 +31,7 @@ func StartContainer(t *testing.T, image string, port string, args ...string) *Co
 
 	id := out.String()[:12]
 
-	cmd = exec.Command("docker", "inspect", "id")
+	cmd = exec.Command("docker", "inspect", id)
 	out.Reset()
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -80,7 +80,7 @@ func DumpContainerLogs(t *testing.T, id string) {
 }
 
 func extractIpPort(t *testing.T, doc []map[string]interface{}, port string) (string, string) {
-	nw, exists := doc[0]["networkSettings"]
+	nw, exists := doc[0]["NetworkSettings"]
 	if !exists {
 		t.Fatal("could not get network settings")
 	}
