@@ -5,7 +5,6 @@ import (
 	"errors"
 	"expvar"
 	"fmt"
-	"github.com/mohammadhsn/ultimate-service/business/sys/database"
 	"net/http"
 	"os"
 	"os/signal"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/ardanlabs/conf"
 	"github.com/mohammadhsn/ultimate-service/app/services/sales/handlers"
+	"github.com/mohammadhsn/ultimate-service/business/sys/database"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	//_ "go.uber.org/automaxprocs"
