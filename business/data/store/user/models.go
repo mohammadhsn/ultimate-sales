@@ -15,13 +15,13 @@ type User struct {
 	Roles        pq.StringArray `db:"roles" json:"roles"`
 	PasswordHash []byte         `db:"password_hash" json:"_"`
 	DateCreated  time.Time      `db:"date_created" json:"dateCreated"`
-	DateUpdated  time.Time      `db:"dateUpdated" json:"dateUpdated"`
+	DateUpdated  time.Time      `db:"date_updated" json:"dateUpdated"`
 }
 
 // NewUser contains information needed to create a new User.
 type NewUser struct {
-	Name            string   `db:"name" validate:"required,email"`
-	Email           string   `db:"email" validate:"required"`
+	Name            string   `db:"name" validate:"required"`
+	Email           string   `db:"email" validate:"required,email"`
 	Roles           []string `json:"roles" validate:"required"`
 	Password        string   `json:"password" validate:"required"`
 	PasswordConfirm string   `json:"password_confirm" validate:"eqfield=Password"`

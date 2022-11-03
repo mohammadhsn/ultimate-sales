@@ -13,6 +13,10 @@ go-tidy:
 go-expvarmon:
 	expvarmon --ports=":4000" --vars="build,requests,goroutines,errors,panics,mem:memstats,Alloc"
 
+go-test:
+	go test ./... -count=1
+	staticcheck -checks=all ./...
+
 admin:
 	go run app/tooling/admin/main.go
 

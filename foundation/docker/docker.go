@@ -18,11 +18,11 @@ type Container struct {
 
 // StartContainer starts the specified container for running tests.
 func StartContainer(t *testing.T, image string, port string, args ...string) *Container {
-	arg := []string{"run", "-P", "-d"}
-	args = append(arg, args...)
-	arg = append(arg, image)
+	defaultArgs := []string{"run", "-P", "-d"}
+	defaultArgs = append(defaultArgs, args...)
+	defaultArgs = append(defaultArgs, image)
 
-	cmd := exec.Command("docker", arg...)
+	cmd := exec.Command("docker", defaultArgs...)
 	var out bytes.Buffer
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -31,7 +31,7 @@ func StartContainer(t *testing.T, image string, port string, args ...string) *Co
 
 	id := out.String()[:12]
 
-	cmd = exec.Command("docker", "inspect", id)
+	cmd = exec.Command("docker", "container", "inspect", id)
 	out.Reset()
 	cmd.Stdout = &out
 	if err := cmd.Run(); err != nil {
@@ -59,12 +59,12 @@ func StartContainer(t *testing.T, image string, port string, args ...string) *Co
 
 // StopContainer stops and removes the specified container.
 func StopContainer(t *testing.T, id string) {
-	if err := exec.Command("docker", "stop", id).Run(); err != nil {
+	if err := exec.Command("docker", "container", "stop", id).Run(); err != nil {
 		log.Fatalf("could not stop container: %v", err)
 	}
 	t.Log("Stopped:", id)
 
-	if err := exec.Command("docker", "rm", "id", "-v").Run(); err != nil {
+	if err := exec.Command("docker", "container", "rm", id, "-v").Run(); err != nil {
 		t.Fatalf("could not remove container: %v", err)
 	}
 	t.Log("Removed:", id)
@@ -72,7 +72,7 @@ func StopContainer(t *testing.T, id string) {
 
 // DumpContainerLogs outputs logs from the running docker container.
 func DumpContainerLogs(t *testing.T, id string) {
-	out, err := exec.Command("docker", "logs", id).CombinedOutput()
+	out, err := exec.Command("docker", "container", "logs", id).CombinedOutput()
 	if err != nil {
 		t.Fatalf("could not log container: %v", err)
 	}
@@ -110,8 +110,10 @@ func extractIpPort(t *testing.T, doc []map[string]interface{}, port string) (str
 
 		hostIp = data["HostIp"].(string)
 		if hostIp != "::" {
-			hostIp = data["HostPort"].(string)
+			hostIp = data["HostIp"].(string)
 		}
+
+		hostPort = data["HostPort"].(string)
 	}
 	return hostIp, hostPort
 }
