@@ -4,3 +4,7 @@ resources:
 - ../../base/sales-pod
 patchesStrategicMerge:
 - ./service-patch.yaml
+images:
+  - name: openzipkin
+    newName: openzipkin/zipkin
+    newTag: "2.23"

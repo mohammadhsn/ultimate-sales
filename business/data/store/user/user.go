@@ -219,7 +219,7 @@ func (s Store) Authenticate(ctx context.Context, now time.Time, email, password 
 	// Compare the provided password with the saved hash. User the bcrypt
 	// comparison function, so it is cryptographically secure.
 	if err := bcrypt.CompareHashAndPassword(usr.PasswordHash, []byte(password)); err != nil {
-		return database.ErrAtuthenticationFailure
+		return database.ErrAuthenticationFailure
 	}
 
 	// If we are this far the request is valid. Create some claim for the user

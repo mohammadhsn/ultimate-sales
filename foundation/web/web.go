@@ -3,12 +3,14 @@ package web
 
 import (
 	"context"
-	"github.com/dimfeld/httptreemux/v5"
-	"github.com/google/uuid"
 	"net/http"
 	"os"
 	"syscall"
 	"time"
+
+	"github.com/dimfeld/httptreemux/v5"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/trace"
 )
 
 // A Handler is a type that handles a http request within our own little mini framework.
@@ -18,17 +20,25 @@ type Handler func(ctx context.Context, w http.ResponseWriter, r *http.Request) e
 // object for each of our http handlers. Feel free to add any configuration
 // data/logic on this app struct.
 type App struct {
-	*httptreemux.ContextMux
+	mux      *httptreemux.ContextMux
+	otMux    http.Handler
 	shutdown chan os.Signal
 	mw       []Middleware
 }
 
+func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	a.otMux.ServeHTTP(w, r)
+}
+
 // NewApp created an App value that handle a set of routes for the application.
 func NewApp(shutdown chan os.Signal, mw ...Middleware) *App {
+	mux := httptreemux.NewContextMux()
+
 	return &App{
-		ContextMux: httptreemux.NewContextMux(),
-		shutdown:   shutdown,
-		mw:         mw,
+		mux:      mux,
+		otMux:    otelhttp.NewHandler(mux, "request"),
+		shutdown: shutdown,
+		mw:       mw,
 	}
 }
 
@@ -51,10 +61,12 @@ func (a *App) Handle(method, group, path string, handler Handler, mw ...Middlewa
 	h := func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
+		span := trace.SpanFromContext(ctx)
+
 		// Set the context with the required values to
 		// process the request.
 		v := Values{
-			TraceID: uuid.New().String(),
+			TraceID: span.SpanContext().TraceID().String(),
 			Now:     time.Now(),
 		}
 
@@ -73,5 +85,5 @@ func (a *App) Handle(method, group, path string, handler Handler, mw ...Middlewa
 		finalPath = "/" + group + path
 	}
 
-	a.ContextMux.Handle(method, finalPath, h)
+	a.mux.Handle(method, finalPath, h)
 }

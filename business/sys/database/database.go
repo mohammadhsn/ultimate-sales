@@ -4,22 +4,24 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jmoiron/sqlx"
-	"github.com/mohammadhsn/ultimate-service/foundation/web"
-	"go.uber.org/zap"
 	"net/url"
 	"reflect"
 	"strings"
 	"time"
 
+	"github.com/jmoiron/sqlx"
+	"github.com/mohammadhsn/ultimate-service/foundation/web"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.uber.org/zap"
+
 	_ "github.com/lib/pq" // for the init() purpose
 )
 
 var (
-	ErrNotFound               = errors.New("not found")
-	ErrInvalidID              = errors.New("ID is not in its proper form")
-	ErrAtuthenticationFailure = errors.New("authentication failed")
-	ErrForbidden              = errors.New("attempted action is not allowed")
+	ErrNotFound              = errors.New("not found")
+	ErrInvalidID             = errors.New("ID is not in its proper form")
+	ErrAuthenticationFailure = errors.New("authentication failed")
 )
 
 // Config is the required properties to use the database.
@@ -96,6 +98,10 @@ func StatusCheck(ctx context.Context, db *sqlx.DB) error {
 func NamedExecContext(ctx context.Context, log *zap.SugaredLogger, db *sqlx.DB, query string, data interface{}) error {
 	q := queryString(query, data)
 	log.Infow("database.NamedExecContext", "traceID", web.GetTraceID(ctx), "query", q)
+
+	ctx, span := otel.GetTracerProvider().Tracer("").Start(ctx, "database.query")
+	span.SetAttributes(attribute.String("query", q))
+	defer span.End()
 
 	if _, err := db.NamedExecContext(ctx, query, data); err != nil {
 		return err

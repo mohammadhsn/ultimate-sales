@@ -60,7 +60,7 @@ sales-restart:
 
 sales-update: docker-build kind-load sales-restart
 
-sales-update-apply: docker-build kind-load sales-apply
+sales-update-apply: docker-build kind-load apply
 
 sales-status:
 	kubectl get pods -o wide --watch
@@ -69,7 +69,7 @@ sales-logs:
 	kubectl logs \
 		-l app=sales \
 		--all-containers=true \
-		--tail 100 -f | go run app/tooling/logfmt/main.go
+		--tail 100 -f | go run app/tooling/logfmt/main.go | go run app/tooling/logfmt/main.go
 
 sales-describe:
 	kubectl describe pod -l app=sales

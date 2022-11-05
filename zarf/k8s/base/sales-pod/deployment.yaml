@@ -17,6 +17,11 @@ spec:
           image: sales-image:1.0
           command: ['./admin']
       containers:
+        - name: zipkin
+          image: openzipkin
+          ports:
+            - name: zipkin
+              containerPort: 9411
         - name: sales-service
           image: sales-image:1.0
           readinessProbe:
